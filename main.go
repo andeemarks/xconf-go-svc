@@ -4,6 +4,7 @@ import (
   "log"
   "net/http"
 
+  "bitbucket.org/kardianos/osext"
   "github.com/emicklei/go-restful"
   "github.com/emicklei/go-restful/swagger"
 )
@@ -24,8 +25,8 @@ func (u UserService) Register() {
   ws := new(restful.WebService)
   ws.
     Path("/users").
-    Consumes(restful.MIME_XML, restful.MIME_JSON).
-    Produces(restful.MIME_JSON, restful.MIME_XML) // you can specify this per route as well
+    Consumes(restful.MIME_JSON).
+    Produces(restful.MIME_JSON) // you can specify this per route as well
 
   ws.Route(ws.GET("/{user-id}").To(u.findUser).
     // docs
@@ -111,6 +112,7 @@ func main() {
   // Optionally, you can install the Swagger Service which provides a nice Web UI on your REST API
   // You need to download the Swagger HTML5 assets and change the FilePath location in the config below.
   // Open http://localhost:8080/apidocs and enter http://localhost:8080/apidocs.json in the api input field.
+  filename, _ := osext.ExecutableFolder()
   config := swagger.Config {
     WebServices: restful.RegisteredWebServices(), // you control what services are visible
     WebServicesUrl: "http://localhost:8080",
@@ -118,7 +120,7 @@ func main() {
 
     // Optionally, specifiy where the UI is located
     SwaggerPath: "/apidocs/",
-    SwaggerFilePath: "/Users/amarks/Code/swagger-ui/dist"}
+    SwaggerFilePath: filename + "swagger-ui"}
 
   swagger.InstallSwaggerService(config)
 
