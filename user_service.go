@@ -20,7 +20,7 @@ func (u UserService) Register() {
 		Consumes(restful.MIME_JSON).
 		Produces(restful.MIME_JSON) 
 
-	ws.Route(ws.GET("/{user-id}").To(u.findUser).
+	ws.Route(ws.GET("/{user-id}").To(u.FindUser).
 		Doc("get a user").
 		Operation("findUser").
 		Param(ws.PathParameter("user-id", "identifier of the user").DataType("string")).
@@ -47,7 +47,7 @@ func (u UserService) Register() {
 
 
 // GET http://localhost:8080/users/1
-func (u UserService) findUser(request *restful.Request, response *restful.Response) {
+func (u UserService) FindUser(request *restful.Request, response *restful.Response) {
 	id := request.PathParameter("user-id")
 	usr := u.users[id]
 	if len(usr.Id) == 0 {
