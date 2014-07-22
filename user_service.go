@@ -6,7 +6,6 @@ import (
 )
 
 type UserService struct {
-	// normally one would use DAO (data access object)
 	users map[string]User
 }
 
@@ -19,30 +18,26 @@ func (u UserService) Register() {
 	ws.
 		Path("/users").
 		Consumes(restful.MIME_JSON).
-		Produces(restful.MIME_JSON) // you can specify this per route as well
+		Produces(restful.MIME_JSON) 
 
 	ws.Route(ws.GET("/{user-id}").To(u.findUser).
-		// docs
 		Doc("get a user").
 		Operation("findUser").
 		Param(ws.PathParameter("user-id", "identifier of the user").DataType("string")).
 		Writes(User{})) // on the response
 
 	ws.Route(ws.PUT("/{user-id}").To(u.updateUser).
-		// docs
 		Doc("update a user").
 		Operation("updateUser").
 		Param(ws.PathParameter("user-id", "identifier of the user").DataType("string")).
 		Reads(User{})) // from the request
 
 	ws.Route(ws.PUT("").To(u.createUser).
-		// docs
 		Doc("create a user").
 		Operation("createUser").
 		Reads(User{})) // from the request
 
 	ws.Route(ws.DELETE("/{user-id}").To(u.removeUser).
-		// docs
 		Doc("delete a user").
 		Operation("removeUser").
 		Param(ws.PathParameter("user-id", "identifier of the user").DataType("string")))
@@ -52,7 +47,6 @@ func (u UserService) Register() {
 
 
 // GET http://localhost:8080/users/1
-//
 func (u UserService) findUser(request *restful.Request, response *restful.Response) {
 	id := request.PathParameter("user-id")
 	usr := u.users[id]
@@ -65,7 +59,6 @@ func (u UserService) findUser(request *restful.Request, response *restful.Respon
 
 // PUT http://localhost:8080/users/1
 // <User><Id>1</Id><Name>Melissa Raspberry</Name></User>
-//
 func (u *UserService) updateUser(request *restful.Request, response *restful.Response) {
 	usr := new(User)
 	err := request.ReadEntity(&usr)
@@ -77,9 +70,8 @@ func (u *UserService) updateUser(request *restful.Request, response *restful.Res
 	}
 }
 
-// PUT http://localhost:8080/users/1
+// PUT http://localhost:8080/users
 // <User><Id>1</Id><Name>Melissa</Name></User>
-//
 func (u *UserService) createUser(request *restful.Request, response *restful.Response) {
 	usr := User{Id: request.PathParameter("user-id")}
 	err := request.ReadEntity(&usr)
@@ -93,7 +85,6 @@ func (u *UserService) createUser(request *restful.Request, response *restful.Res
 }
 
 // DELETE http://localhost:8080/users/1
-//
 func (u *UserService) removeUser(request *restful.Request, response *restful.Response) {
 	id := request.PathParameter("user-id")
 	delete(u.users, id)

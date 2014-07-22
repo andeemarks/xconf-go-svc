@@ -21,7 +21,7 @@ func main() {
 	// You need to download the Swagger HTML5 assets and change the FilePath location in the config below.
 	// Open http://localhost:8080/apidocs and enter http://localhost:8080/apidocs.json in the api input field.
 	homeFolder, _ := osext.ExecutableFolder()
-	config := swagger.Config{
+	config := swagger.Config {
 		WebServices:    restful.RegisteredWebServices(), // you control what services are visible
 		WebServicesUrl: "http://localhost:8080",
 		ApiPath:        "/apidocs.json",
