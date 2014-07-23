@@ -6,7 +6,7 @@ import (
 )
 
 type UserService struct {
-	users map[string]User
+	Users map[string]User
 }
 
 type User struct {
@@ -32,7 +32,7 @@ func (u UserService) Register() {
 		Param(ws.PathParameter("user-id", "identifier of the user").DataType("string")).
 		Reads(User{})) // from the request
 
-	ws.Route(ws.PUT("").To(u.createUser).
+	ws.Route(ws.PUT("").To(u.CreateUser).
 		Doc("create a user").
 		Operation("createUser").
 		Reads(User{})) // from the request
@@ -49,7 +49,7 @@ func (u UserService) Register() {
 // GET http://localhost:8080/users/1
 func (u UserService) FindUser(request *restful.Request, response *restful.Response) {
 	id := request.PathParameter("user-id")
-	usr := u.users[id]
+	usr := u.Users[id]
 	if len(usr.Id) == 0 {
 		response.WriteErrorString(http.StatusNotFound, "User could not be found.")
 	} else {
@@ -63,7 +63,7 @@ func (u *UserService) updateUser(request *restful.Request, response *restful.Res
 	usr := new(User)
 	err := request.ReadEntity(&usr)
 	if err == nil {
-		u.users[usr.Id] = *usr
+		u.Users[usr.Id] = *usr
 		response.WriteEntity(usr)
 	} else {
 		response.WriteError(http.StatusInternalServerError, err)
@@ -72,11 +72,11 @@ func (u *UserService) updateUser(request *restful.Request, response *restful.Res
 
 // PUT http://localhost:8080/users
 // <User><Id>1</Id><Name>Melissa</Name></User>
-func (u *UserService) createUser(request *restful.Request, response *restful.Response) {
+func (u *UserService) CreateUser(request *restful.Request, response *restful.Response) {
 	usr := User{Id: request.PathParameter("user-id")}
 	err := request.ReadEntity(&usr)
 	if err == nil {
-		u.users[usr.Id] = usr
+		u.Users[usr.Id] = usr
 		response.WriteHeader(http.StatusCreated)
 		response.WriteEntity(usr)
 	} else {
@@ -87,5 +87,5 @@ func (u *UserService) createUser(request *restful.Request, response *restful.Res
 // DELETE http://localhost:8080/users/1
 func (u *UserService) removeUser(request *restful.Request, response *restful.Response) {
 	id := request.PathParameter("user-id")
-	delete(u.users, id)
+	delete(u.Users, id)
 }

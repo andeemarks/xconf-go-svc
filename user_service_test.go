@@ -5,7 +5,7 @@ import (
 	"github.com/emicklei/go-restful"
 	"net/http"
 	"net/http/httptest"
-	// "strings"
+	"strings"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -18,9 +18,23 @@ var _ = Describe("UserService", func() {
     )
 
 	BeforeEach(func() {
-		request = new(restful.Request)
+		service = UserService{map[string]User{}}
+		restful.SetCacheReadEntity(true)
 		httpWriter := httptest.NewRecorder()
 		response = restful.NewResponse(httpWriter) 
+    })
+
+	Describe("Creating users", func() {
+        Context("With the necessary fields", func() {
+            It("should succeed", func() {
+				bodyReader := strings.NewReader("{\"Id\": \"1\",\"Name\": \"Andy\"}")
+				httpRequest, _ := http.NewRequest("PUT", "/users", bodyReader)
+				httpRequest.Header.Set("Content-Type", "application/json") 		
+				request = restful.NewRequest(httpRequest)
+            	service.CreateUser(request, response)
+                Expect(response.StatusCode()).To(Equal(http.StatusCreated))
+            })
+        })
     })
 
 	Describe("Finding users", func() {
@@ -31,8 +45,8 @@ var _ = Describe("UserService", func() {
             })
         })
 
-        Context("With an existing user id", func() {
-            It("should return success", func() {
+        PContext("With an existing user id", func() {
+            It("should succeed", func() {
             	service.FindUser(request, response)
                 Expect(response.StatusCode()).To(Equal(http.StatusOK))
             })
