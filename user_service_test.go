@@ -5,7 +5,7 @@ import (
 	"github.com/emicklei/go-restful"
 	"net/http"
 	"net/http/httptest"
-	"strings"
+	// "strings"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -18,24 +18,23 @@ var _ = Describe("UserService", func() {
     )
 
 	BeforeEach(func() {
-		bodyReader := strings.NewReader("<Sample><Value>42</Value></Sample>")
-		httpRequest, _ := http.NewRequest("GET", "/test", bodyReader)
-		request := &restful.Request{Request: httpRequest}
+		request = new(restful.Request)
 		httpWriter := httptest.NewRecorder()
-		response := &restful.Response{httpWriter, "*/*", []string{"*/*"}, 0, 0}
+		response = restful.NewResponse(httpWriter) 
     })
 
 	Describe("Finding users", func() {
         Context("With a non-existant user id", func() {
             It("should return an error", func() {
             	service.FindUser(request, response)
-                Expect(response).To(Equal("NOVEL"))
+                Expect(response.StatusCode()).To(Equal(http.StatusNotFound))
             })
         })
 
         Context("With an existing user id", func() {
             It("should return success", func() {
-                // Expect(service.FindUser(request, response)).To(Equal("SHORT STORY"))
+            	service.FindUser(request, response)
+                Expect(response.StatusCode()).To(Equal(http.StatusOK))
             })
         })
     })
