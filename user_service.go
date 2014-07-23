@@ -2,6 +2,7 @@ package xconf_go_svc
 
 import (
 	"net/http"
+	"log"
 	"github.com/emicklei/go-restful"
 )
 
@@ -74,12 +75,15 @@ func (u *UserService) updateUser(request *restful.Request, response *restful.Res
 // <User><Id>1</Id><Name>Melissa</Name></User>
 func (u *UserService) CreateUser(request *restful.Request, response *restful.Response) {
 	usr := User{Id: request.PathParameter("user-id")}
+	log.Printf("adding user...")
 	err := request.ReadEntity(&usr)
 	if err == nil {
 		u.Users[usr.Id] = usr
 		response.WriteHeader(http.StatusCreated)
 		response.WriteEntity(usr)
+		log.Printf("Success creating using user")
 	} else {
+		log.Printf("Error creating using user")
 		response.WriteError(http.StatusInternalServerError, err)
 	}
 }
