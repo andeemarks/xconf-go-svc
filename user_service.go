@@ -1,4 +1,4 @@
-package xconf_go_svc
+package main
 
 import (
 	"net/http"

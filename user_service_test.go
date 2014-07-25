@@ -1,4 +1,4 @@
-package xconf_go_svc_test
+package main
 
 import (
 	. "github.com/andeemarks/xconf-go-svc"
