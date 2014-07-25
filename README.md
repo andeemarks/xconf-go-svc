@@ -11,15 +11,15 @@ Prerequisites
 
 Because this service runs as a Golang application, you will need to have a Golang development environment installed on your machine and your `$GOPATH` environment variable set.  See [here](https://code.google.com/p/go-wiki/wiki/GOPATH) for instructions on how to do this.
 
-1. `go version` => `go version go1.2.2 darwin/amd64`
+* `go version` => `go version go1.2.2 darwin/amd64`
 
 Dependencies
 ------------
 
-1. `go get github.com/emicklei/go-restful`
-1. `go get github.com/emicklei/go-restful/swagger`
-1. `go get bitbucket.org/kardianos/osext`
-1. `go get github.com/onsi/ginkgo/ginkgo`
+* `go get github.com/emicklei/go-restful`
+* `go get github.com/emicklei/go-restful/swagger`
+* `go get bitbucket.org/kardianos/osext`
+* `go get github.com/onsi/ginkgo/ginkgo`
 
 Installation
 ------------
@@ -38,4 +38,4 @@ Running
 
 1. `cd $GOPATH/src/github.com/andeemarks/xconf-go-svc`
 1. `./xconf-go-svc`
-1. `open http://localhost:8080/apidocs/`
+1. `open http://localhost:8080/apidocs/` for a [Swagger](https://helloreverb.com/developers/swagger) browser showing the API.
