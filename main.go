@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"log/syslog"
 	"net/http"
 
 	"bitbucket.org/kardianos/osext"
@@ -24,6 +25,11 @@ func main() {
 		SwaggerFilePath: homeFolder + "swagger-ui"}
 
 	swagger.InstallSwaggerService(config)
+
+	logwriter, e := syslog.New(syslog.LOG_NOTICE, "xconf-go-svc")
+    if e == nil {
+        log.SetOutput(logwriter)
+    }
 
 	log.Printf("start listening on localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
