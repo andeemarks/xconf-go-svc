@@ -63,6 +63,7 @@ func (u UserService) FindUser(request *restful.Request, response *restful.Respon
 // <User><Id>1</Id><Name>Melissa Raspberry</Name></User>
 func (u *UserService) updateUser(request *restful.Request, response *restful.Response) {
 	usr := new(User)
+	log.Printf("updating user: %s", usr)
 	err := request.ReadEntity(&usr)
 	if err == nil {
 		u.Users[usr.Id] = *usr
@@ -76,7 +77,7 @@ func (u *UserService) updateUser(request *restful.Request, response *restful.Res
 // <User><Id>1</Id><Name>Melissa</Name></User>
 func (u *UserService) CreateUser(request *restful.Request, response *restful.Response) {
 	usr := User{Id: request.PathParameter("user-id")}
-	log.Printf("adding user...")
+	log.Printf("adding user: %s", usr)
 	err := request.ReadEntity(&usr)
 	if err == nil {
 		u.Users[usr.Id] = usr
@@ -92,5 +93,6 @@ func (u *UserService) CreateUser(request *restful.Request, response *restful.Res
 // DELETE http://localhost:8080/users/1
 func (u *UserService) removeUser(request *restful.Request, response *restful.Response) {
 	id := request.PathParameter("user-id")
+	log.Printf("removing user with id %s", id)
 	delete(u.Users, id)
 }

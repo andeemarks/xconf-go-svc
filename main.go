@@ -5,7 +5,6 @@ import (
 	"log/syslog"
 	"net/http"
 
-	"bitbucket.org/kardianos/osext"
 	"github.com/emicklei/go-restful"
 	"github.com/emicklei/go-restful/swagger"
 )
@@ -14,15 +13,10 @@ func main() {
 	u := UserService{map[string]User{}}
 	u.Register()
 
-	homeFolder, _ := osext.ExecutableFolder()
 	config := swagger.Config {
 		WebServices:    restful.RegisteredWebServices(), // you control what services are visible
 		WebServicesUrl: "http://localhost:8080",
-		ApiPath:        "/apidocs.json",
-
-		// Optionally, specifiy where the UI is located
-		SwaggerPath:     "/apidocs/",
-		SwaggerFilePath: homeFolder + "swagger-ui"}
+		ApiPath:        "/apidocs.json"}
 
 	swagger.InstallSwaggerService(config)
 
