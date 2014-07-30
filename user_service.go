@@ -50,7 +50,7 @@ func (u UserService) Register() {
 // GET http://localhost:8080/users/1
 func (u UserService) FindUser(request *restful.Request, response *restful.Response) {
 	id := request.PathParameter("user-id")
-	log.Printf("looking for user with id %d", id)
+	log.Printf("looking for user with id %s", id)
 	usr := u.Users[id]
 	if len(usr.Id) == 0 {
 		response.WriteErrorString(http.StatusNotFound, "User could not be found.")
