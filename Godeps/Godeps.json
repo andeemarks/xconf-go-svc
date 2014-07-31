@@ -1,0 +1,20 @@
+{
+	"ImportPath": "github.com/andeemarks/xconf-go-svc",
+	"GoVersion": "go1.2.2",
+	"Deps": [
+		{
+			"ImportPath": "github.com/emicklei/go-restful",
+			"Comment": "v1.1.1-29-gc12ca76",
+			"Rev": "c12ca7685cf7b6e123f90cd30556d1065e37a5e6"
+		},
+		{
+			"ImportPath": "github.com/onsi/ginkgo",
+			"Comment": "v1.0.0-28-g6481765",
+			"Rev": "6481765dda39cbaae281109e6945449642329197"
+		},
+		{
+			"ImportPath": "github.com/onsi/gomega",
+			"Rev": "4699d5a664396173c7d9fcef9e88be297c7bae13"
+		}
+	]
+}
