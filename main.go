@@ -13,7 +13,7 @@ func main() {
 	u := UserService{map[string]User{}}
 	u.Register()
 
-	config := swagger.Config {
+	config := swagger.Config{
 		WebServices:    restful.RegisteredWebServices(), // you control what services are visible
 		WebServicesUrl: "http://localhost:8080",
 		ApiPath:        "/apidocs.json"}
@@ -21,9 +21,9 @@ func main() {
 	swagger.InstallSwaggerService(config)
 
 	logwriter, e := syslog.New(syslog.LOG_NOTICE, "xconf-go-svc")
-    if e == nil {
-        log.SetOutput(logwriter)
-    }
+	if e == nil {
+		log.SetOutput(logwriter)
+	}
 
 	log.Printf("start listening on localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))

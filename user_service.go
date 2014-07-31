@@ -1,9 +1,9 @@
 package main
 
 import (
-	"net/http"
-	"log"
 	"github.com/emicklei/go-restful"
+	"log"
+	"net/http"
 )
 
 type UserService struct {
@@ -19,7 +19,7 @@ func (u UserService) Register() {
 	ws.
 		Path("/users").
 		Consumes(restful.MIME_JSON).
-		Produces(restful.MIME_JSON) 
+		Produces(restful.MIME_JSON)
 
 	ws.Route(ws.GET("/{user-id}").To(u.FindUser).
 		Doc("get a user").
@@ -45,7 +45,6 @@ func (u UserService) Register() {
 
 	restful.Add(ws)
 }
-
 
 // GET http://localhost:8080/users/1
 func (u UserService) FindUser(request *restful.Request, response *restful.Response) {
