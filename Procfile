@@ -1,0 +1,1 @@
+web: xconf-go-svc
