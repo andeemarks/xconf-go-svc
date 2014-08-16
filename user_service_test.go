@@ -1,7 +1,7 @@
 package main
 
 import (
-	. "github.com/andeemarks/xconf-go-svc"
+	// . "github.com/andeemarks/xconf-go-svc"
 	"github.com/emicklei/go-restful"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
