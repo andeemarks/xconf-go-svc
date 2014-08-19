@@ -21,7 +21,6 @@ var httpResponse *httptest.ResponseRecorder
 
 var _ = BeforeSuite(func() {
     restful.DefaultResponseContentType(restful.MIME_JSON)
-    service = UserService{map[string]User{}}
 	user = `{"Id": "1", "Name": "Andy"}`
 	updatedUser = `{"Id": "1", "Name": "Andrew"}`
     httpResponse = httptest.NewRecorder()
@@ -30,6 +29,10 @@ var _ = BeforeSuite(func() {
 })
 
 var _ = Describe("UserService", func() {
+	BeforeEach(func() {
+	    service = UserService{map[string]User{}}
+    })
+
 	PIt("should be Swagger compliant", func() {
 	    uri := "http://localhost:8080/apidocs.json"
 	    response, err := http.Get(uri)
