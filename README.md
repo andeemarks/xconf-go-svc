@@ -1,6 +1,8 @@
 XConf User Service
 ==================
 
+[![Build Status](https://travis-ci.org/andeemarks/xconf-go-svc.svg)](https://travis-ci.org/andeemarks/xconf-go-svc)
+
 Background
 ----------
 
