@@ -83,9 +83,9 @@ var _ = Describe("UserService", func() {
 			    body, err := ioutil.ReadAll(httpResponse.Body)
 			    Ω(err).ShouldNot(HaveOccurred())
 
-			    newUser := new(User)
-			    json.Unmarshal(body, newUser)
-			    Ω(newUser).Should(Equal(&user))
+			    addedUser := new(User)
+			    json.Unmarshal(body, addedUser)
+			    Ω(addedUser).Should(Equal(&user))
 			})
 		})
 
