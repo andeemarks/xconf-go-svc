@@ -28,6 +28,15 @@ var _ = BeforeSuite(func() {
 	// userAsJson, _ := json.Marshal(User{"1", "Andy"})
 })
 
+func createUser(user string) {
+    request, err := http.NewRequest("PUT", "http://localhost:8080/users/1", strings.NewReader(user))
+    request.Header.Set("Content-Type", "application/json")
+    Ω(err).ShouldNot(HaveOccurred())
+
+    service.createUser("1", restful.NewRequest(request), response)
+
+}
+
 var _ = Describe("UserService", func() {
 	BeforeEach(func() {
 	    service = UserService{map[string]User{}}
@@ -57,15 +66,12 @@ var _ = Describe("UserService", func() {
 		})
 	})
 
+
 	Describe("When adding users", func() {
 		Context("that doesn't exist", func() {
 
 			It("should succeed", func() {
-			    request, err := http.NewRequest("PUT", "http://localhost:8080/users/1", strings.NewReader(user))
-			    request.Header.Set("Content-Type", "application/json")
-			    Ω(err).ShouldNot(HaveOccurred())
-
-			    service.createUser("1", restful.NewRequest(request), response)
+				createUser(user)
 
 			    Ω(response.StatusCode()).Should(Equal(http.StatusCreated))
 			    body, err := ioutil.ReadAll(httpResponse.Body)
@@ -78,19 +84,17 @@ var _ = Describe("UserService", func() {
 		Context("that already exists", func() {
 
 			It("should succeed and overwrite the user", func() {
-			    request, err := http.NewRequest("PUT", "http://localhost:8080/users/1", strings.NewReader(user))
-			    request.Header.Set("Content-Type", "application/json")
-			    Ω(err).ShouldNot(HaveOccurred())
-
-			    service.createUser("1", restful.NewRequest(request), response)
+				createUser(user)
 
 			    Ω(response.StatusCode()).Should(Equal(http.StatusCreated))
 
-			    request, err = http.NewRequest("PUT", "http://localhost:8080/users/1", strings.NewReader(updatedUser))
-			    request.Header.Set("Content-Type", "application/json")
-			    Ω(err).ShouldNot(HaveOccurred())
+				createUser(updatedUser)
 
-			    service.createUser("1", restful.NewRequest(request), response)
+			    // request, err := http.NewRequest("PUT", "http://localhost:8080/users/1", strings.NewReader(updatedUser))
+			    // request.Header.Set("Content-Type", "application/json")
+			    // Ω(err).ShouldNot(HaveOccurred())
+
+			    // service.createUser("1", restful.NewRequest(request), response)
 
 			    Ω(response.StatusCode()).Should(Equal(http.StatusCreated))
 			    body, err := ioutil.ReadAll(httpResponse.Body)
