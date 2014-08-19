@@ -42,18 +42,7 @@ var _ = Describe("UserService", func() {
 	    service = UserService{map[string]User{}}
     })
 
-	PIt("should be Swagger compliant", func() {
-	    uri := "http://localhost:8080/apidocs.json"
-	    response, err := http.Get(uri)
-	    Ω(err).ShouldNot(HaveOccurred())
-
-	    body, err := ioutil.ReadAll(response.Body)
-	    Ω(err).ShouldNot(HaveOccurred())
-	    Ω(response.StatusCode).Should(Equal(http.StatusOK))
-	    Ω(body).Should(ContainSubstring("swagger"))
-	})
-	
-	PDescribe("When finding users", func() {
+	Describe("When finding users", func() {
 
 		Context("that doesn't exist", func() {
 
@@ -62,6 +51,18 @@ var _ = Describe("UserService", func() {
 			    response, err := http.Get(uri)
 			    Ω(err).ShouldNot(HaveOccurred())
 			    Ω(response.StatusCode).Should(Equal(http.StatusNotFound))
+			})
+		})
+
+		Context("that exist", func() {
+
+			It("should succeed", func() {
+				createUser(user)
+
+			    uri := "http://localhost:8080/users/1"
+			    response, err := http.Get(uri)
+			    Ω(err).ShouldNot(HaveOccurred())
+			    Ω(response.StatusCode).Should(Equal(http.StatusOK))
 			})
 		})
 	})
@@ -86,15 +87,7 @@ var _ = Describe("UserService", func() {
 			It("should succeed and overwrite the user", func() {
 				createUser(user)
 
-			    Ω(response.StatusCode()).Should(Equal(http.StatusCreated))
-
 				createUser(updatedUser)
-
-			    // request, err := http.NewRequest("PUT", "http://localhost:8080/users/1", strings.NewReader(updatedUser))
-			    // request.Header.Set("Content-Type", "application/json")
-			    // Ω(err).ShouldNot(HaveOccurred())
-
-			    // service.createUser("1", restful.NewRequest(request), response)
 
 			    Ω(response.StatusCode()).Should(Equal(http.StatusCreated))
 			    body, err := ioutil.ReadAll(httpResponse.Body)
