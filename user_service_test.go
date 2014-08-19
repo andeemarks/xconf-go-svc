@@ -1,54 +1,96 @@
 package main
 
 import (
-	// . "github.com/andeemarks/xconf-go-svc"
 	"github.com/emicklei/go-restful"
+	// "encoding/json"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"net/http"
 	"net/http/httptest"
+	"log"	
 	"strings"
+	"io/ioutil"
 )
 
+var user string
+var updatedUser string
+var service UserService
+var userAsJson []byte
+var response *restful.Response
+var httpResponse *httptest.ResponseRecorder
+
+var _ = BeforeSuite(func() {
+    restful.DefaultResponseContentType(restful.MIME_JSON)
+    service = UserService{map[string]User{}}
+	user = `{"Id": "1", "Name": "Andy"}`
+	updatedUser = `{"Id": "1", "Name": "Andrew"}`
+    httpResponse = httptest.NewRecorder()
+    response = restful.NewResponse(httpResponse)
+	// userAsJson, _ := json.Marshal(User{"1", "Andy"})
+})
+
 var _ = Describe("UserService", func() {
-	var (
-		service  UserService
-		request  *restful.Request
-		response *restful.Response
-	)
+	PIt("should be Swagger compliant", func() {
+	    uri := "http://localhost:8080/apidocs.json"
+	    response, err := http.Get(uri)
+	    Ω(err).ShouldNot(HaveOccurred())
 
-	BeforeEach(func() {
-		service = UserService{map[string]User{}}
-		restful.SetCacheReadEntity(true)
-		httpWriter := httptest.NewRecorder()
-		response = restful.NewResponse(httpWriter)
+	    body, err := ioutil.ReadAll(response.Body)
+	    Ω(err).ShouldNot(HaveOccurred())
+	    Ω(response.StatusCode).Should(Equal(http.StatusOK))
+	    Ω(body).Should(ContainSubstring("swagger"))
 	})
+	
+	PDescribe("When finding users", func() {
 
-	Describe("Creating users", func() {
-		Context("With the necessary fields", func() {
-			It("should succeed", func() {
-				bodyReader := strings.NewReader("{\"Id\": \"1\",\"Name\": \"Andy\"}")
-				httpRequest, _ := http.NewRequest("PUT", "/users", bodyReader)
-				httpRequest.Header.Set("Content-Type", "application/json")
-				request = restful.NewRequest(httpRequest)
-				service.CreateUser(request, response)
-				Expect(response.StatusCode()).To(Equal(http.StatusCreated))
+		Context("that doesn't exist", func() {
+
+			It("should fail", func() {
+			    uri := "http://localhost:8080/users/1"
+			    response, err := http.Get(uri)
+			    Ω(err).ShouldNot(HaveOccurred())
+			    Ω(response.StatusCode).Should(Equal(http.StatusNotFound))
 			})
 		})
 	})
 
-	Describe("Finding users", func() {
-		Context("With a non-existant user id", func() {
-			It("should return an error", func() {
-				service.FindUser(request, response)
-				Expect(response.StatusCode()).To(Equal(http.StatusNotFound))
+	Describe("When adding users", func() {
+		Context("that doesn't exist", func() {
+
+			It("should succeed", func() {
+			    request, err := http.NewRequest("PUT", "http://localhost:8080/users/1", strings.NewReader(user))
+			    request.Header.Set("Content-Type", "application/json")
+			    Ω(err).ShouldNot(HaveOccurred())
+
+			    service.createUser("1", restful.NewRequest(request), response)
+
+			    Ω(response.StatusCode()).Should(Equal(http.StatusCreated))
+			    body, err := ioutil.ReadAll(httpResponse.Body)
+			    Ω(err).ShouldNot(HaveOccurred())
+			    // Ω(body).Should(Equal(user))
+			    log.Printf("%s", body)
 			})
 		})
 
-		PContext("With an existing user id", func() {
-			It("should succeed", func() {
-				service.FindUser(request, response)
-				Expect(response.StatusCode()).To(Equal(http.StatusOK))
+		Context("that already exists", func() {
+
+			It("should succeed and overwrite the user", func() {
+			    request, err := http.NewRequest("PUT", "http://localhost:8080/users/1", strings.NewReader(user))
+			    request.Header.Set("Content-Type", "application/json")
+			    Ω(err).ShouldNot(HaveOccurred())
+
+
+			    service.createUser("1", restful.NewRequest(request), response)
+
+			    Ω(response.StatusCode()).Should(Equal(http.StatusCreated))
+
+			    service.createUser("1", restful.NewRequest(request), response)
+
+			    Ω(response.StatusCode()).Should(Equal(http.StatusCreated))
+			    body, err := ioutil.ReadAll(httpResponse.Body)
+			    Ω(err).ShouldNot(HaveOccurred())
+			    log.Printf("%s", body)
+
 			})
 		})
 	})
