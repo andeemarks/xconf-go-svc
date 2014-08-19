@@ -88,8 +88,9 @@ func (u *UserService) CreateUser(request *restful.Request, response *restful.Res
 
 func (u *UserService) createUser(userId string, request *restful.Request, response *restful.Response) {
 	usr := User{Id: userId}
+	// log.Printf("%s", request.Request.Body)
 	err := request.ReadEntity(&usr)
-	log.Printf("%s %s %s %s %s", err, usr, u.Users, usr.Id, u.Users[usr.Id])
+	// log.Printf("%s %s %s %s %s", err, usr, u.Users, usr.Id, u.Users[usr.Id])
 	if err == nil {
 		u.Users[usr.Id] = usr
 		response.WriteHeader(http.StatusCreated)

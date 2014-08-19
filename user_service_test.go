@@ -82,10 +82,13 @@ var _ = Describe("UserService", func() {
 			    request.Header.Set("Content-Type", "application/json")
 			    Ω(err).ShouldNot(HaveOccurred())
 
-
 			    service.createUser("1", restful.NewRequest(request), response)
 
 			    Ω(response.StatusCode()).Should(Equal(http.StatusCreated))
+
+			    request, err = http.NewRequest("PUT", "http://localhost:8080/users/1", strings.NewReader(updatedUser))
+			    request.Header.Set("Content-Type", "application/json")
+			    Ω(err).ShouldNot(HaveOccurred())
 
 			    service.createUser("1", restful.NewRequest(request), response)
 
