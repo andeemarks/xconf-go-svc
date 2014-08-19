@@ -29,7 +29,7 @@ var _ = BeforeSuite(func() {
 })
 
 func createUser(user string) {
-    request, err := http.NewRequest("PUT", "http://localhost:8080/users/1", strings.NewReader(user))
+    request, err := http.NewRequest("PUT", "/users/1", strings.NewReader(user))
     request.Header.Set("Content-Type", "application/json")
     Ω(err).ShouldNot(HaveOccurred())
 
@@ -47,10 +47,12 @@ var _ = Describe("UserService", func() {
 		Context("that doesn't exist", func() {
 
 			It("should fail", func() {
-			    uri := "http://localhost:8080/users/1"
-			    response, err := http.Get(uri)
-			    Ω(err).ShouldNot(HaveOccurred())
-			    Ω(response.StatusCode).Should(Equal(http.StatusNotFound))
+			    request, _ := http.NewRequest("GET", "/users/1", strings.NewReader(user))
+			    request.Header.Set("Content-Type", "application/json")
+
+			    service.findUser("1", response)
+
+			    Ω(response.StatusCode()).Should(Equal(http.StatusNotFound))
 			})
 		})
 
@@ -59,10 +61,11 @@ var _ = Describe("UserService", func() {
 			It("should succeed", func() {
 				createUser(user)
 
-			    uri := "http://localhost:8080/users/1"
-			    response, err := http.Get(uri)
-			    Ω(err).ShouldNot(HaveOccurred())
-			    Ω(response.StatusCode).Should(Equal(http.StatusOK))
+			    request, _ := http.NewRequest("GET", "/users/1", strings.NewReader(user))
+			    request.Header.Set("Content-Type", "application/json")
+
+			    service.findUser("1", response)
+			    Ω(response.StatusCode()).Should(Equal(http.StatusCreated))
 			})
 		})
 	})
