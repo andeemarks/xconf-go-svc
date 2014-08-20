@@ -29,7 +29,7 @@ var _ = BeforeSuite(func() {
 })
 
 func createUser(user string) {
-	log.Printf("Adding: %s", user)
+	// log.Printf("Adding: %s", user)
     request, err := http.NewRequest("PUT", "/users/1", strings.NewReader(user))
     request.Header.Set("Content-Type", "application/json")
     Ω(err).ShouldNot(HaveOccurred())
@@ -50,7 +50,7 @@ var _ = Describe("UserService", func() {
 		Context("that doesn't exist", func() {
 
 			It("should fail", func() {
-			    request, _ := http.NewRequest("GET", "/users/1", strings.NewReader(userAsJsonString))
+			    request, _ := http.NewRequest("GET", "/users/1", nil)
 			    request.Header.Set("Content-Type", "application/json")
 
 			    service.findUser("1", response)
@@ -64,7 +64,7 @@ var _ = Describe("UserService", func() {
 			It("should succeed", func() {
 				createUser(userAsJsonString)
 
-			    request, _ := http.NewRequest("GET", "/users/1", strings.NewReader(userAsJsonString))
+			    request, _ := http.NewRequest("GET", "/users/1", nil)
 			    request.Header.Set("Content-Type", "application/json")
 
 			    service.findUser("1", response)
@@ -73,6 +73,77 @@ var _ = Describe("UserService", func() {
 			})
 		})
 
+	})
+
+	Describe("when updating users", func() {
+		Context("that don't exist", func() {
+
+			It("user should be added", func() {
+			    request, _ := http.NewRequest("PUT", "/users/1", strings.NewReader(userAsJsonString))
+			    request.Header.Set("Content-Type", "application/json")
+
+			    service.UpdateUser(restful.NewRequest(request), response)
+
+			    Ω(response.StatusCode()).Should(Equal(http.StatusOK))
+			    body, err := ioutil.ReadAll(httpResponse.Body)
+			    Ω(err).ShouldNot(HaveOccurred())
+
+			    addedUser := new(User)
+			    json.Unmarshal(body, addedUser)
+			    Ω(addedUser).Should(Equal(&user))
+			})
+		})
+
+		PContext("that do exist", func() {
+
+			It("user should be updated", func() {
+				createUser(userAsJsonString)
+
+			    request, _ := http.NewRequest("PUT", "/users/1", strings.NewReader(updatedUserAsJsonString))
+			    request.Header.Set("Content-Type", "application/json")
+
+			    service.UpdateUser(restful.NewRequest(request), response)
+
+			    Ω(response.StatusCode()).Should(Equal(http.StatusCreated))
+			    body, err := ioutil.ReadAll(httpResponse.Body)
+			    Ω(err).ShouldNot(HaveOccurred())
+
+			    addedUser := new(User)
+			    json.Unmarshal(body, addedUser)
+			    Ω(addedUser).Should(Equal(&updatedUser))
+			})
+		})
+
+	})
+
+	Describe("When deleting users", func() {
+		Context("that don't exist", func() {
+			It("should fail silently", func() {
+			    request, _ := http.NewRequest("DELETE", "/users/1", nil)
+			    request.Header.Set("Content-Type", "application/json")
+
+				service.removeUser("1", restful.NewRequest(request), response)
+
+			    Ω(response.StatusCode()).Should(Equal(http.StatusOK))
+
+			})
+		})	
+
+		Context("that do exist", func() {
+			It("should not be possible to find those users afterwards", func() {
+				createUser(userAsJsonString)
+
+			    request, _ := http.NewRequest("DELETE", "/users/1", nil)
+			    request.Header.Set("Content-Type", "application/json")
+
+				service.removeUser("1", restful.NewRequest(request), response)
+
+			    service.findUser("1", response)
+
+			    Ω(response.StatusCode()).Should(Equal(http.StatusNotFound))
+
+			})
+		})	
 	})
 
 	Describe("When adding users", func() {

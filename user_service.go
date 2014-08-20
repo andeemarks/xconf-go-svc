@@ -60,7 +60,6 @@ func (u UserService) FindUser(request *restful.Request, response *restful.Respon
 }
 
 func (u *UserService) findUser(userId string, response *restful.Response) {
-	log.Printf("looking for user with id %s", userId)
 	usr := u.Users[userId]
 	if len(usr.Id) == 0 {
 		response.WriteErrorString(http.StatusNotFound, "User could not be found.")
@@ -70,13 +69,12 @@ func (u *UserService) findUser(userId string, response *restful.Response) {
 }
 
 // PUT http://localhost:8080/users/1
-// <User><Id>1</Id><Name>Melissa Raspberry</Name></User>
 func (u *UserService) UpdateUser(request *restful.Request, response *restful.Response) {
 	usr := new(User)
-	log.Printf("updating user: %s", usr)
 	err := request.ReadEntity(&usr)
 	if err == nil {
 		u.Users[usr.Id] = *usr
+		log.Printf("updating user: %s", usr)
 		response.WriteEntity(usr)
 	} else {
 		response.WriteError(http.StatusInternalServerError, err)
@@ -84,7 +82,6 @@ func (u *UserService) UpdateUser(request *restful.Request, response *restful.Res
 }
 
 // PUT http://localhost:8080/users
-// <User><Id>1</Id><Name>Melissa</Name></User>
 func (u *UserService) CreateUser(request *restful.Request, response *restful.Response) {
 	u.createUser(request.PathParameter("user-id"), request, response)
 }
@@ -105,7 +102,10 @@ func (u *UserService) createUser(userId string, request *restful.Request, respon
 
 // DELETE http://localhost:8080/users/1
 func (u *UserService) RemoveUser(request *restful.Request, response *restful.Response) {
-	id := request.PathParameter("user-id")
-	log.Printf("removing user with id %s", id)
-	delete(u.Users, id)
+	u.removeUser(request.PathParameter("user-id"), request, response)
+}
+
+func (u *UserService) removeUser(userId string, request *restful.Request, response *restful.Response) {
+	log.Printf("removing user with id %s", userId)
+	delete(u.Users, userId)
 }
