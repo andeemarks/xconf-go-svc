@@ -14,22 +14,24 @@ import (
 
 var user, updatedUser User
 var service UserService
-var userAsJson, updatedUserAsJson []byte
+var userAsJsonString, updatedUserAsJsonString string
 var response *restful.Response
 var httpResponse *httptest.ResponseRecorder
 
 var _ = BeforeSuite(func() {
     restful.DefaultResponseContentType(restful.MIME_JSON)
 	user = User{"1", "Andy"}
-	userAsJson, _ = json.Marshal(user)
+	userAsJson, _ := json.Marshal(user)
+	userAsJsonString = string(userAsJson)
 	updatedUser = User{"1", "Andrew"}
-	updatedUserAsJson, _ = json.Marshal(updatedUser)
+	updatedUserAsJson, _ := json.Marshal(updatedUser)
+	updatedUserAsJsonString = string(updatedUserAsJson)
     httpResponse = httptest.NewRecorder()
     response = restful.NewResponse(httpResponse)
 })
 
-func createUser(user []byte) {
-    request, err := http.NewRequest("PUT", "/users/1", strings.NewReader(string(user)))
+func createUser(user string) {
+    request, err := http.NewRequest("PUT", "/users/1", strings.NewReader(user))
     request.Header.Set("Content-Type", "application/json")
     Ω(err).ShouldNot(HaveOccurred())
 
@@ -42,12 +44,12 @@ var _ = Describe("UserService", func() {
 	    service = UserService{map[string]User{}}
     })
 
-	PDescribe("When finding users", func() {
+	Describe("When finding users", func() {
 
-		Context("that doesn't exist", func() {
+		PContext("that doesn't exist", func() {
 
 			It("should fail", func() {
-			    request, _ := http.NewRequest("GET", "/users/1", strings.NewReader(string(userAsJson)))
+			    request, _ := http.NewRequest("GET", "/users/1", strings.NewReader(userAsJsonString))
 			    request.Header.Set("Content-Type", "application/json")
 
 			    service.findUser("1", response)
@@ -56,12 +58,12 @@ var _ = Describe("UserService", func() {
 			})
 		})
 
-		Context("that exist", func() {
+		PContext("that exist", func() {
 
 			It("should succeed", func() {
-				createUser(userAsJson)
+				createUser(userAsJsonString)
 
-			    request, _ := http.NewRequest("GET", "/users/1", strings.NewReader(string(userAsJson)))
+			    request, _ := http.NewRequest("GET", "/users/1", strings.NewReader(userAsJsonString))
 			    request.Header.Set("Content-Type", "application/json")
 
 			    service.findUser("1", response)
@@ -72,12 +74,11 @@ var _ = Describe("UserService", func() {
 
 	})
 
-
 	Describe("When adding users", func() {
 		Context("that doesn't exist", func() {
 
 			It("should succeed", func() {
-				createUser(userAsJson)
+				createUser(userAsJsonString)
 
 			    Ω(response.StatusCode()).Should(Equal(http.StatusCreated))
 			    body, err := ioutil.ReadAll(httpResponse.Body)
@@ -92,9 +93,9 @@ var _ = Describe("UserService", func() {
 		Context("that already exists", func() {
 
 			It("should succeed and overwrite the user", func() {
-				createUser(userAsJson)
+				createUser(userAsJsonString)
 
-				createUser(updatedUserAsJson)
+				createUser(updatedUserAsJsonString)
 
 			    Ω(response.StatusCode()).Should(Equal(http.StatusCreated))
 			    body, err := ioutil.ReadAll(httpResponse.Body)
