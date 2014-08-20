@@ -26,11 +26,10 @@ var _ = BeforeSuite(func() {
 	updatedUser = User{"1", "Andrew"}
 	updatedUserAsJson, _ := json.Marshal(updatedUser)
 	updatedUserAsJsonString = string(updatedUserAsJson)
-    httpResponse = httptest.NewRecorder()
-    response = restful.NewResponse(httpResponse)
 })
 
 func createUser(user string) {
+	log.Printf("Adding: %s", user)
     request, err := http.NewRequest("PUT", "/users/1", strings.NewReader(user))
     request.Header.Set("Content-Type", "application/json")
     Ω(err).ShouldNot(HaveOccurred())
@@ -42,11 +41,13 @@ func createUser(user string) {
 var _ = Describe("UserService", func() {
 	BeforeEach(func() {
 	    service = UserService{map[string]User{}}
+	    httpResponse = httptest.NewRecorder()
+	    response = restful.NewResponse(httpResponse)
     })
 
 	Describe("When finding users", func() {
 
-		PContext("that doesn't exist", func() {
+		Context("that doesn't exist", func() {
 
 			It("should fail", func() {
 			    request, _ := http.NewRequest("GET", "/users/1", strings.NewReader(userAsJsonString))
@@ -58,7 +59,7 @@ var _ = Describe("UserService", func() {
 			})
 		})
 
-		PContext("that exist", func() {
+		Context("that exist", func() {
 
 			It("should succeed", func() {
 				createUser(userAsJsonString)
@@ -75,7 +76,7 @@ var _ = Describe("UserService", func() {
 	})
 
 	Describe("When adding users", func() {
-		Context("that doesn't exist", func() {
+		Context("that don't exist", func() {
 
 			It("should succeed", func() {
 				createUser(userAsJsonString)
