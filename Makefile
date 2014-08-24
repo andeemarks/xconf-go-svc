@@ -4,4 +4,4 @@ GOPATH = $(shell pwd)
 	GOPATH=$(GOPATH) go get -d
 
 default: .deps
-	GOPATH=$(GOPATH) go build
+	GOPATH=$(GOPATH) go build -o xconf-go-svc
