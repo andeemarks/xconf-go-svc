@@ -2,3 +2,4 @@
 xconf-go-svc
 src/github.com
 .vagrant
+*.rpm
