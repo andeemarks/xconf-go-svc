@@ -12,5 +12,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   end
 
   config.vm.provision :shell, inline: "yum -y install http://ftp.riken.jp/Linux/fedora/epel/6/i386/epel-release-6-8.noarch.rpm"
-  config.vm.provision :shell, inline: "yum -y install golang"
+  config.vm.provision :shell, inline: "yum -y install golang ruby-devel git"
+  config.vm.provision :shell, inline: "gem install bundler"
 end
