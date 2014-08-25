@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/emicklei/go-restful"
-	"log"
+	// "github.com/op/go-logging"
 	"net/http"
 )
 
@@ -15,7 +15,7 @@ type User struct {
 }
 
 func (u UserService) Register() {
-	log.Printf("Service registration started")
+	log.Notice("Service registration started")
 	restful.Filter(logRequests)
 	restful.SetCacheReadEntity(false)
 
@@ -48,11 +48,11 @@ func (u UserService) Register() {
 		Param(ws.PathParameter("user-id", "identifier of the user").DataType("string")))
 
 	restful.Add(ws)
-	log.Printf("Service registration finished")
+	log.Notice("Service registration finished")
 }
 
 func logRequests(request *restful.Request, response *restful.Response, chain *restful.FilterChain) {
-	log.Printf("Request received: %s %s", request.Request.Method, request.Request.URL)
+	log.Info("Request received: %s %s", request.Request.Method, request.Request.URL)
 	chain.ProcessFilter(request, response)
 }
 
@@ -62,10 +62,10 @@ func (u UserService) FindUser(request *restful.Request, response *restful.Respon
 }
 
 func (u *UserService) findUser(userId string, response *restful.Response) {
-	log.Printf("Looking for user with id: %s", userId)
+	log.Info("Looking for user with id: %s", userId)
 	usr := u.Users[userId]
 	if len(usr.Id) == 0 {
-		log.Printf("User with id: %s not found", userId)
+		log.Info("User with id: %s not found", userId)
 		response.WriteErrorString(http.StatusNotFound, "User could not be found.")
 	} else {
 		response.WriteEntity(usr)
@@ -78,10 +78,10 @@ func (u *UserService) UpdateUser(request *restful.Request, response *restful.Res
 	err := request.ReadEntity(&usr)
 	if err == nil {
 		u.Users[usr.Id] = *usr
-		log.Printf("Updating user with id: %s", usr.Id)
+		log.Info("Updating user with id: %s", usr.Id)
 		response.WriteEntity(usr)
 	} else {
-		log.Printf("Error updating user with id: %s - %s", usr.Id, err)
+		log.Info("Error updating user with id: %s - %s", usr.Id, err)
 		response.WriteError(http.StatusInternalServerError, err)
 	}
 }
@@ -92,7 +92,7 @@ func (u *UserService) CreateUser(request *restful.Request, response *restful.Res
 }
 
 func (u *UserService) createUser(userId string, request *restful.Request, response *restful.Response) {
-	log.Printf("Creating user with id: %s", userId)
+	log.Info("Creating user with id: %s", userId)
 	usr := User{Id: userId}
 	err := request.ReadEntity(&usr)
 	if err == nil {
@@ -100,7 +100,7 @@ func (u *UserService) createUser(userId string, request *restful.Request, respon
 		response.WriteHeader(http.StatusCreated)
 		response.WriteEntity(usr)
 	} else {
-		log.Printf("Error creating user with id: %s - %s", userId, err)
+		log.Info("Error creating user with id: %s - %s", userId, err)
 		response.WriteError(http.StatusInternalServerError, err)
 	}
 }
@@ -111,6 +111,6 @@ func (u *UserService) RemoveUser(request *restful.Request, response *restful.Res
 }
 
 func (u *UserService) removeUser(userId string, request *restful.Request, response *restful.Response) {
-	log.Printf("Removing user with id: %s", userId)
+	log.Info("Removing user with id: %s", userId)
 	delete(u.Users, userId)
 }

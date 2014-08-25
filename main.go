@@ -1,14 +1,15 @@
 package main
 
 import (
-	"log"
 	// "log/syslog"
 	"net/http"
 	"os"
 	"github.com/emicklei/go-restful"
 	"github.com/emicklei/go-restful/swagger"
+	"github.com/op/go-logging"
 )
 
+var log = logging.MustGetLogger("UserService.main")
 
 func main() {
 	u := UserService{map[string]User{}}
@@ -26,12 +27,10 @@ func main() {
 
 	swagger.InstallSwaggerService(config)
 
-	// logwriter, e := syslog.New(syslog.LOG_NOTICE, "xconf-go-svc")
-	// if e == nil {
-	// 	log.SetOutput(logwriter)
-	// }
+	var format = logging.MustStringFormatter("%{level} %{message}")
+    logging.SetFormatter(format)
+    logging.SetLevel(logging.INFO, "UserService.main")
 
-	log.SetPrefix("[UserService] ")
-	log.Printf("start listening on localhost:" + port)
+	log.Notice("start listening on localhost:" + port)
 	log.Fatal(http.ListenAndServe(":" + port, nil))
 }

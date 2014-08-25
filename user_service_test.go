@@ -7,7 +7,6 @@ import (
 	. "github.com/onsi/gomega"
 	"net/http"
 	"net/http/httptest"
-	"log"	
 	"strings"
 	"io/ioutil"
 )
@@ -172,7 +171,7 @@ var _ = Describe("UserService", func() {
 			    Ω(response.StatusCode()).Should(Equal(http.StatusCreated))
 			    body, err := ioutil.ReadAll(httpResponse.Body)
 			    Ω(err).ShouldNot(HaveOccurred())
-			    log.Printf("%s", body)
+			    log.Debug("%s", body)
 
 			})
 		})

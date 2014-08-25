@@ -15,6 +15,10 @@
 		{
 			"ImportPath": "github.com/onsi/gomega",
 			"Rev": "4699d5a664396173c7d9fcef9e88be297c7bae13"
+		},
+		{
+			"ImportPath": "github.com/op/go-logging",
+			"Rev": "c1b91128b40ead0e98dbc63cde57c0541feaa6c1"
 		}
 	]
 }
