@@ -31,6 +31,7 @@ func main() {
 	// 	log.SetOutput(logwriter)
 	// }
 
+	log.SetPrefix("[UserService] ")
 	log.Printf("start listening on localhost:" + port)
 	log.Fatal(http.ListenAndServe(":" + port, nil))
 }
