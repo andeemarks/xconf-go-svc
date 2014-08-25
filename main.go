@@ -1,7 +1,6 @@
 package main
 
 import (
-	// "log/syslog"
 	"net/http"
 	"os"
 	"github.com/emicklei/go-restful"
@@ -10,6 +9,7 @@ import (
 )
 
 var log = logging.MustGetLogger("UserService.main")
+var format = logging.MustStringFormatter("[%{module}] %{level} - %{message}")
 
 func main() {
 	u := UserService{map[string]User{}}
@@ -27,9 +27,8 @@ func main() {
 
 	swagger.InstallSwaggerService(config)
 
-	var format = logging.MustStringFormatter("%{level} %{message}")
-    logging.SetFormatter(format)
-    logging.SetLevel(logging.INFO, "UserService.main")
+	logging.SetFormatter(format)
+	logging.SetLevel(logging.INFO, "UserService.main")
 
 	log.Notice("start listening on localhost:" + port)
 	log.Fatal(http.ListenAndServe(":" + port, nil))
