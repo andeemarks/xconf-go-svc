@@ -30,6 +30,8 @@ func initMetrics() {
 func (u UserService) Register() {
 	log.Notice("Service registration started")
 	restful.SetCacheReadEntity(false)
+	restful.Filter(logReceivedRequests)
+	restful.Filter(restful.OPTIONSFilter())
 
 	initMetrics()
 
@@ -69,10 +71,27 @@ func (u UserService) Register() {
 		Operation("removeUser").
 		Param(ws.PathParameter("user-id", "identifier of the user").DataType("string")))
 
-	ws.Filter(logRequests)
+	ws.Filter(logSupportedRoutes).Filter(enableCORS)
 
 	restful.Add(ws)
 	log.Notice("Service registration finished")
+}
+
+func enableCORS(req *restful.Request, resp *restful.Response, chain *restful.FilterChain) {
+	if origin := req.Request.Header.Get("Origin"); origin != "" {
+		resp.AddHeader("Access-Control-Allow-Origin", "*")
+	}
+	chain.ProcessFilter(req, resp)
+}
+
+func logReceivedRequests(request *restful.Request, response *restful.Response, chain *restful.FilterChain) {
+	log.Info("Request received: %s %s", request.Request.Method, request.Request.URL)
+	chain.ProcessFilter(request, response)
+}
+
+func logSupportedRoutes(request *restful.Request, response *restful.Response, chain *restful.FilterChain) {
+	log.Info("Route supported: %s %s", request.Request.Method, request.Request.URL)
+	chain.ProcessFilter(request, response)
 }
 
 func (u UserService) status(request *restful.Request, response *restful.Response) {
@@ -80,11 +99,6 @@ func (u UserService) status(request *restful.Request, response *restful.Response
 	metrics.WriteJSONOnce(metrics.DefaultRegistry, &b)
 	response.WriteHeader(http.StatusOK)
 	response.WriteEntity(b.String())
-}
-
-func logRequests(request *restful.Request, response *restful.Response, chain *restful.FilterChain) {
-	log.Info("Request received: %s %s", request.Request.Method, request.Request.URL)
-	chain.ProcessFilter(request, response)
 }
 
 // GET http://localhost:8080/users/1
