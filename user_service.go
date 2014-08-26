@@ -1,10 +1,10 @@
 package main
 
 import (
+	"bytes"
 	"github.com/emicklei/go-restful"
 	"github.com/rcrowley/go-metrics"
 	"net/http"
-	"bytes"
 )
 
 type UserService struct {
