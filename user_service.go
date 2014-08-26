@@ -2,7 +2,9 @@ package main
 
 import (
 	"github.com/emicklei/go-restful"
+	"github.com/rcrowley/go-metrics"
 	"net/http"
+	"bytes"
 )
 
 type UserService struct {
@@ -13,41 +15,71 @@ type User struct {
 	Id, Name string
 }
 
+var addRequests = metrics.NewCounter()
+var updateRequests = metrics.NewCounter()
+var deleteRequests = metrics.NewCounter()
+var defaultRegistry metrics.Registry = metrics.NewRegistry()
+
+func initMetrics() {
+	metrics.Register("number-of-users-added", addRequests)
+	metrics.Register("number-of-users-updated", updateRequests)
+	metrics.Register("number-of-users-deleted", deleteRequests)
+	// metrics.Log(defaultRegistry, 60e9, log.New(os.Stdout, "metrics: ", log.Lmicroseconds))
+}
+
 func (u UserService) Register() {
 	log.Notice("Service registration started")
-	restful.Filter(logRequests)
 	restful.SetCacheReadEntity(false)
 
+	initMetrics()
+
 	ws := new(restful.WebService)
-	ws.
-		Path("/users").
+	ws.Path("/users").
 		Consumes(restful.MIME_JSON).
 		Produces(restful.MIME_JSON)
 
-	ws.Route(ws.GET("/{user-id}").To(u.FindUser).
+	ws.Route(ws.GET("/status").
+		To(u.status).
+		Doc("show service stats").
+		Operation("serviceStats"))
+
+	ws.Route(ws.GET("/{user-id}").
+		To(u.FindUser).
 		Doc("get a user").
 		Operation("findUser").
 		Param(ws.PathParameter("user-id", "identifier of the user").DataType("string")).
 		Writes(User{})) // on the response
 
-	ws.Route(ws.PUT("/{user-id}").To(u.UpdateUser).
+	ws.Route(ws.PUT("/{user-id}").
+		To(u.UpdateUser).
 		Doc("update a user").
 		Operation("updateUser").
 		Param(ws.PathParameter("user-id", "identifier of the user").DataType("string")).
 		Reads(User{})) // from the request
 
-	ws.Route(ws.PUT("").To(u.CreateUser).
+	ws.Route(ws.PUT("").
+		To(u.CreateUser).
 		Doc("create a user").
 		Operation("createUser").
 		Reads(User{})) // from the request
 
-	ws.Route(ws.DELETE("/{user-id}").To(u.RemoveUser).
+	ws.Route(ws.DELETE("/{user-id}").
+		To(u.RemoveUser).
 		Doc("delete a user").
 		Operation("removeUser").
 		Param(ws.PathParameter("user-id", "identifier of the user").DataType("string")))
 
+	ws.Filter(logRequests)
+
 	restful.Add(ws)
 	log.Notice("Service registration finished")
+}
+
+func (u UserService) status(request *restful.Request, response *restful.Response) {
+	var b bytes.Buffer
+	metrics.WriteJSONOnce(metrics.DefaultRegistry, &b)
+	response.WriteHeader(http.StatusOK)
+	response.WriteEntity(b.String())
 }
 
 func logRequests(request *restful.Request, response *restful.Response, chain *restful.FilterChain) {
@@ -78,6 +110,7 @@ func (u *UserService) UpdateUser(request *restful.Request, response *restful.Res
 	if err == nil {
 		u.Users[usr.Id] = *usr
 		log.Info("Updating user with id: %s", usr.Id)
+		updateRequests.Inc(1)
 		response.WriteEntity(usr)
 	} else {
 		log.Info("Error updating user with id: %s - %s", usr.Id, err)
@@ -96,6 +129,7 @@ func (u *UserService) createUser(userId string, request *restful.Request, respon
 	err := request.ReadEntity(&usr)
 	if err == nil {
 		u.Users[usr.Id] = usr
+		addRequests.Inc(1)
 		response.WriteHeader(http.StatusCreated)
 		response.WriteEntity(usr)
 	} else {
@@ -111,5 +145,6 @@ func (u *UserService) RemoveUser(request *restful.Request, response *restful.Res
 
 func (u *UserService) removeUser(userId string, request *restful.Request, response *restful.Response) {
 	log.Info("Removing user with id: %s", userId)
+	deleteRequests.Inc(1)
 	delete(u.Users, userId)
 }
