@@ -27,18 +27,7 @@ func initMetrics() {
 	// metrics.Log(defaultRegistry, 60e9, log.New(os.Stdout, "metrics: ", log.Lmicroseconds))
 }
 
-func (u UserService) Register() {
-	log.Notice("Service registration started")
-	restful.SetCacheReadEntity(false)
-	restful.Filter(logReceivedRequests)
-
-	initMetrics()
-
-	ws := new(restful.WebService)
-	ws.Path("/users").
-		Consumes(restful.MIME_JSON).
-		Produces(restful.MIME_JSON)
-
+func (u UserService) setupRoutes(ws *restful.WebService) {
 	ws.Route(ws.GET("/status").
 		To(u.status).
 		Doc("show service stats").
@@ -69,6 +58,20 @@ func (u UserService) Register() {
 		Doc("delete a user").
 		Operation("removeUser").
 		Param(ws.PathParameter("user-id", "identifier of the user").DataType("string")))
+}
+
+func (u UserService) Register() {
+	log.Notice("Service registration started")
+	restful.SetCacheReadEntity(false)
+	restful.Filter(logReceivedRequests)
+
+	initMetrics()
+
+	ws := new(restful.WebService)
+	ws.Path("/users").
+		Consumes(restful.MIME_JSON).
+		Produces(restful.MIME_JSON)
+	u.setupRoutes(ws)
 
 	ws.Filter(logSupportedRoutes)
 
@@ -134,9 +137,9 @@ func (u *UserService) CreateUser(request *restful.Request, response *restful.Res
 }
 
 func (u *UserService) createUser(userId string, request *restful.Request, response *restful.Response) {
-	log.Info("Creating user with id: %s", userId)
 	usr := User{Id: userId}
 	err := request.ReadEntity(&usr)
+	log.Info("Creating user: %s", usr)
 	if err == nil {
 		u.Users[usr.Id] = usr
 		addRequests.Inc(1)
