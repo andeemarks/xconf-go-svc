@@ -1,6 +1,8 @@
 GOPATH = $(shell pwd)
 DISTDIR = ./dist
 EXEC = xconf-go-svc
+VERSION = $(shell cat VERSION)
+REVISION = $(shell git log --pretty=format:'%h' -n 1)
 
 .deps:
 	GOPATH=$(GOPATH) go get -d
@@ -27,7 +29,7 @@ package: .build .dist-dir
 	fpm -s dir \
 		-t rpm \
 		-n $(EXEC) \
-		-v 1.0 \
+		-v $(VERSION)-$(REVISION) \
 		-p dist/$(EXEC).rpm \
 		--no-depends \
 		$(EXEC)=/usr/bin/$(EXEC) \
