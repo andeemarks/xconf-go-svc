@@ -70,26 +70,19 @@ func (u UserService) Register() {
 		Operation("removeUser").
 		Param(ws.PathParameter("user-id", "identifier of the user").DataType("string")))
 
-	ws.Filter(logSupportedRoutes).Filter(enableCORS)
+	ws.Filter(logSupportedRoutes)
 
 	restful.Add(ws)
-	restful.Filter(restful.OPTIONSFilter())
-	log.Notice("Service registration finished")
-}
+	cors := restful.CrossOriginResourceSharing{ExposeHeaders: []string{"X-My-Header"}, AllowedHeaders: []string{"content-type"}, CookiesAllowed: true, Container: restful.DefaultContainer}
+	restful.Filter(cors.Filter)
 
-func enableCORS(req *restful.Request, resp *restful.Response, chain *restful.FilterChain) {
-	origin := req.Request.Header.Get("Origin")
-	log.Info("Checking origin: %s", origin)
-	if (origin != "") {
-		log.Debug("Adding CORS header for origin: %s", origin)
-		resp.AddHeader("Access-Control-Allow-Origin", origin)
-	}
-	chain.ProcessFilter(req, resp)
+	log.Notice("Service registration finished")
 }
 
 func logReceivedRequests(request *restful.Request, response *restful.Response, chain *restful.FilterChain) {
 	log.Info("Request received: %s %s", request.Request.Method, request.Request.URL)
 	chain.ProcessFilter(request, response)
+	log.Info("Response status: %d", response.StatusCode())
 }
 
 func logSupportedRoutes(request *restful.Request, response *restful.Response, chain *restful.FilterChain) {
