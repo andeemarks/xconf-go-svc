@@ -54,7 +54,7 @@ func configureLogging() {
 	format := logging.MustStringFormatter("[%{module}] %{level} - %{message}")
 	logging.SetBackend(fileLogger, stdErrorLogger)
 	logging.SetFormatter(format)
-	logging.SetLevel(logging.INFO, "UserService.main")
+	logging.SetLevel(logging.DEBUG, "UserService.main")
 }
 
 func main() {

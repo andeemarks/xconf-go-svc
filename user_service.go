@@ -31,7 +31,6 @@ func (u UserService) Register() {
 	log.Notice("Service registration started")
 	restful.SetCacheReadEntity(false)
 	restful.Filter(logReceivedRequests)
-	restful.Filter(restful.OPTIONSFilter())
 
 	initMetrics()
 
@@ -74,12 +73,16 @@ func (u UserService) Register() {
 	ws.Filter(logSupportedRoutes).Filter(enableCORS)
 
 	restful.Add(ws)
+	restful.Filter(restful.OPTIONSFilter())
 	log.Notice("Service registration finished")
 }
 
 func enableCORS(req *restful.Request, resp *restful.Response, chain *restful.FilterChain) {
-	if origin := req.Request.Header.Get("Origin"); origin != "" {
-		resp.AddHeader("Access-Control-Allow-Origin", "*")
+	origin := req.Request.Header.Get("Origin")
+	log.Info("Checking origin: %s", origin)
+	if (origin != "") {
+		log.Debug("Adding CORS header for origin: %s", origin)
+		resp.AddHeader("Access-Control-Allow-Origin", origin)
 	}
 	chain.ProcessFilter(req, resp)
 }
