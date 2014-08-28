@@ -6,6 +6,7 @@ import (
 	"github.com/op/go-logging"
 	"net/http"
 	"os"
+	// "io"
 	"os/signal"
 	"syscall"
 )
@@ -43,16 +44,15 @@ func handleExit(port string) {
 
 func configureLogging() {
 	stdErrorLogger := logging.NewLogBackend(os.Stderr, "", 3)
-	f, err := os.OpenFile("xconf-go-svc.log", os.O_RDWR | os.O_CREATE | os.O_APPEND, 0666)
+	logFile, err := os.OpenFile("xconf-go-svc.log", os.O_RDWR | os.O_CREATE | os.O_APPEND, 0666)
 	if err != nil {
 	    log.Fatalf("error opening file: %v", err)
 	}
-	defer f.Close()
 
-	fileLogger := logging.NewLogBackend(f, "", 0)
+	fileLogger := logging.NewLogBackend(logFile, "", 3)
 
-	logging.SetBackend(stdErrorLogger, fileLogger)
 	format := logging.MustStringFormatter("[%{module}] %{level} - %{message}")
+	logging.SetBackend(fileLogger, stdErrorLogger)
 	logging.SetFormatter(format)
 	logging.SetLevel(logging.INFO, "UserService.main")
 }
