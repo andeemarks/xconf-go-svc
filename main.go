@@ -44,9 +44,9 @@ func configureExitHandler(port string) {
 
 func configureLogging() {
 	stdErrorLogger := logging.NewLogBackend(os.Stderr, "", 3)
-	logFile, err := os.OpenFile("xconf-go-svc.log", os.O_RDWR | os.O_CREATE | os.O_APPEND, 0666)
+	logFile, err := os.OpenFile("xconf-go-svc.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
-	    log.Fatalf("error opening file: %v", err)
+		log.Fatalf("error opening file: %v", err)
 	}
 
 	fileLogger := logging.NewLogBackend(logFile, "", 3)
