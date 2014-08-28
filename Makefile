@@ -1,12 +1,35 @@
 GOPATH = $(shell pwd)
+DISTDIR = ./dist
+EXEC = xconf-go-svc
 
 .deps:
 	GOPATH=$(GOPATH) go get -d
 
 .build: .deps
-	GOPATH=$(GOPATH) go build -o xconf-go-svc
+	GOPATH=$(GOPATH) go build -o $(EXEC)
+
+.dist-dir:
+	mkdir -p $(DISTDIR)
 
 default: .build
 
-package: .build
-	fpm -s dir -t rpm -n xconf-go-svc -v 1.0 --no-depends xconf-go-svc=/usr/bin/xconf-go-svc etc/init.d/xconf-go-svc=/etc/init.d/xconf-go-svc etc/default/xconf-go-svc=/etc/default/xconf-go-svc
+clean:
+	rm -rf $(DISTDIR)
+	rm -f $(EXEC)
+
+tar: .build .dist-dir
+	mkdir -p $(DISTDIR)/usr/bin
+	mv $(EXEC) $(DISTDIR)/usr/bin
+	cp -R etc/ $(DISTDIR)/
+	tar -czO -C $(DISTDIR) usr etc > $(DISTDIR)/$(EXEC).tar.gz
+
+package: .build .dist-dir
+	fpm -s dir \
+		-t rpm \
+		-n $(EXEC) \
+		-v 1.0 \
+		-p dist/$(EXEC).rpm \
+		--no-depends \
+		$(EXEC)=/usr/bin/$(EXEC) \
+		etc/init.d/$(EXEC)=/etc/init.d/$(EXEC) \
+		etc/default/$(EXEC)=/etc/default/$(EXEC)
