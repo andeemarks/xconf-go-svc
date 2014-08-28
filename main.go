@@ -31,7 +31,7 @@ func configureSwagger(port string) {
 	swagger.InstallSwaggerService(config)
 }
 
-func handleExit(port string) {
+func configureExitHandler(port string) {
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
 	signal.Notify(c, syscall.SIGTERM)
@@ -62,7 +62,7 @@ func main() {
 
 	port := getPort()
 
-	handleExit(port)
+	configureExitHandler(port)
 
 	u := UserService{map[string]User{}}
 	u.Register()
