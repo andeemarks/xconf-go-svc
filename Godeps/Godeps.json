@@ -1,6 +1,9 @@
 {
 	"ImportPath": "github.com/andeemarks/xconf-go-svc",
 	"GoVersion": "go1.2.2",
+	"Packages": [
+		"./..."
+	],
 	"Deps": [
 		{
 			"ImportPath": "github.com/emicklei/go-restful",
@@ -18,7 +21,7 @@
 		},
 		{
 			"ImportPath": "github.com/op/go-logging",
-			"Rev": "c1b91128b40ead0e98dbc63cde57c0541feaa6c1"
+			"Rev": "06b24434bba6c80f1807aeb19d3cf62051c0a636"
 		},
 		{
 			"ImportPath": "github.com/rcrowley/go-metrics",
