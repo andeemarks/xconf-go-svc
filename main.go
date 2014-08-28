@@ -11,7 +11,6 @@ import (
 )
 
 var log = logging.MustGetLogger("UserService.main")
-var format = logging.MustStringFormatter("[%{module}] %{level} - %{message}")
 
 func getPort() (port string) {
 	port = os.Getenv("PORT")
@@ -42,7 +41,25 @@ func handleExit(port string) {
 	}()
 }
 
+func configureLogging() {
+	stdErrorLogger := logging.NewLogBackend(os.Stderr, "", 3)
+	f, err := os.OpenFile("xconf-go-svc.log", os.O_RDWR | os.O_CREATE | os.O_APPEND, 0666)
+	if err != nil {
+	    log.Fatalf("error opening file: %v", err)
+	}
+	defer f.Close()
+
+	fileLogger := logging.NewLogBackend(f, "", 0)
+
+	logging.SetBackend(stdErrorLogger, fileLogger)
+	format := logging.MustStringFormatter("[%{module}] %{level} - %{message}")
+	logging.SetFormatter(format)
+	logging.SetLevel(logging.INFO, "UserService.main")
+}
+
 func main() {
+	configureLogging()
+
 	port := getPort()
 
 	handleExit(port)
@@ -51,9 +68,6 @@ func main() {
 	u.Register()
 
 	configureSwagger(port)
-
-	logging.SetFormatter(format)
-	logging.SetLevel(logging.INFO, "UserService.main")
 
 	log.Notice("start listening on localhost:" + port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
