@@ -85,7 +85,6 @@ func (u UserService) Register() {
 func logReceivedRequests(request *restful.Request, response *restful.Response, chain *restful.FilterChain) {
 	log.Info("Request received: %s %s", request.Request.Method, request.Request.URL)
 	chain.ProcessFilter(request, response)
-	log.Info("Response status: %d", response.StatusCode())
 }
 
 func logSupportedRoutes(request *restful.Request, response *restful.Response, chain *restful.FilterChain) {
@@ -94,10 +93,11 @@ func logSupportedRoutes(request *restful.Request, response *restful.Response, ch
 }
 
 func (u UserService) status(request *restful.Request, response *restful.Response) {
-	var b bytes.Buffer
-	metrics.WriteJSONOnce(metrics.DefaultRegistry, &b)
+	b := &bytes.Buffer{}
+	metrics.WriteJSONOnce(metrics.DefaultRegistry, b)
+	log.Info("Metrics: %s", b)
+	response.WriteAsJson(b.String())
 	response.WriteHeader(http.StatusOK)
-	response.WriteEntity(b.String())
 }
 
 // GET http://localhost:8080/users/1
