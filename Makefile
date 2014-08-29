@@ -13,6 +13,12 @@ REVISION = $(shell git log --pretty=format:'%h' -n 1)
 .dist-dir:
 	mkdir -p $(DISTDIR)
 
+.service-script: .dist-dir
+	echo "service $(EXEC) restart" >> $(DISTDIR)/after-install
+	echo "service $(EXEC) stop" >> $(DISTDIR)/after-remove
+	chmod +x $(DISTDIR)/after-install
+	chmod +x $(DISTDIR)/after-remove
+
 default: .build
 
 clean:
@@ -31,8 +37,9 @@ tar: .build .dist-dir
 	cp -R etc/ $(DISTDIR)/
 	tar -czO -C $(DISTDIR) usr etc > $(DISTDIR)/$(EXEC).tar.gz
 
-package: .build .dist-dir
+rpm: .build .dist-dir
 	fpm -s dir \
+		-f \
 		-t rpm \
 		-n $(EXEC) \
 		-v $(VERSION)-$(REVISION) \
@@ -41,3 +48,33 @@ package: .build .dist-dir
 		$(EXEC)=/usr/bin/$(EXEC) \
 		etc/init.d/$(EXEC)=/etc/init.d/$(EXEC) \
 		etc/default/$(EXEC)=/etc/default/$(EXEC)
+
+rpm-with-script: .build .dist-dir .service-script
+	fpm -s dir \
+		-f \
+		-t rpm \
+		-n $(EXEC) \
+		-v $(VERSION)-$(REVISION) \
+		-p dist/$(EXEC).rpm \
+		--after-install $(DISTDIR)/after-install \
+		--after-remove $(DISTDIR)/after-remove \
+		--no-depends \
+		$(EXEC)=/usr/bin/$(EXEC) \
+		etc/init.d/$(EXEC)=/etc/init.d/$(EXEC) \
+		etc/default/$(EXEC)=/etc/default/$(EXEC)
+
+rpm-with-deps: .build .dist-dir .service-script
+	fpm -s dir \
+		-f \
+		-t rpm \
+		-n $(EXEC) \
+		-v $(VERSION)-$(REVISION) \
+		-p dist/$(EXEC).rpm \
+		--after-install $(DISTDIR)/after-install \
+		--after-remove $(DISTDIR)/after-remove \
+		-d mysql-libs -d redis -d python \
+		$(EXEC)=/usr/bin/$(EXEC) \
+		etc/init.d/$(EXEC)=/etc/init.d/$(EXEC) \
+		etc/default/$(EXEC)=/etc/default/$(EXEC)
+
+package: rpm-with-script

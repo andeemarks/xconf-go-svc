@@ -2,3 +2,4 @@
 src/github.com
 .vagrant
 *.rpm
+dist/
